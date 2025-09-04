@@ -36,9 +36,8 @@ device_name = "FX3"
 W, H, FPS = 640, 480, 30
 
 container = av.open(
-    format="dshow",
-    file=f"video={device_name}",
-    options={"video_size": f"{W}x{H}", "framerate": str(FPS), "pixel_format": "yuyv422"}
+    # file="./vids/Almesbar_face_20_08_2025_1.mkv"
+    file="./vids/Almesbar_room_temp_fading_20_08_2025_1.mkv"
 )
 
 decoder = container.decode(video=0)
@@ -52,10 +51,14 @@ ax.axis("off")
 try:
     for frame in decoder:
         # YUY2 → (H, W) uint16
-        mono16_swapped = unpack_yuyv(frame, H, W, swap=False)
+        # mono16_swapped = unpack_yuyv(frame, H, W, swap=False)
         
         # update the displayed image
-        im.set_data(mono16_swapped)
+        f = frame.to_ndarray()
+        mn = f.min(); mx = f.max()
+        f = (f-mn)*(2**16/(mx-mn))
+        print(f"Frame: min({f.min()}), max({f.max()})")
+        im.set_data(f)
         fig.canvas.draw()
         fig.canvas.flush_events()
 
